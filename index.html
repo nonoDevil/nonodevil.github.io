@@ -57,8 +57,8 @@
 
     <div class='article'>
         <div class="content-title">
-            <a href="./pages/2013/10/04/first-blog.html"><h1>first blog</h1></a>
-2013-10-04
+            <a href="./pages/2013/10/06/linuxcxin-hao-ping-bi-han-shu.html"><h1>LinuxC信号屏蔽函数</h1></a>
+2013-10-06
 
 by <a class="url fn" href="./author/nonodevil.html">nonoDevil</a>
  
@@ -67,11 +67,166 @@ by <a class="url fn" href="./author/nonodevil.html">nonoDevil</a>
  
         </div>
         
-        <div><h2>第一篇博文</h2>
-<p>Hello pelican</p></div>
+        <div><p>先来看看函数原型:</p>
+<div class="highlight"><pre><span class="cp">#include &lt;signal.h&gt;</span>
+<span class="kt">int</span>     <span class="nf">sigsuspend</span><span class="p">(</span><span class="k">const</span> <span class="kt">sigset_t</span> <span class="o">*</span><span class="n">mask</span><span class="p">);</span>
+</pre></div>
+
+
+<p>函数sigsuspend将进程的信号屏蔽码设置为mask，然后与pause()函数一样等待信号的发生并执行完信号处理函数。信号处理函数执行完后再把进程的信号屏蔽码设置为原来的屏蔽字，然后sigsuspend函数才返回。 Sigsuspend总是返回-1。 --------《LinuxC编程实战》</p>
+<p>将进程的信号屏蔽字设置为由sigmask指向的值。在捕捉到一个信号或发生了一个会终止该进程的信号之前，该进程被挂起。如果捕捉到一个信号而且从该信号处理程序返回，则sigsuspend返回，并且将该进程的信号屏蔽字设置为调用sigsuspend之前的值。
+注意，此函数没有成功返回值。如果它返回到调用者则总是返回-1，并将errno设置为EINTR(表示为一个被中断的系统调用)。   ------ 《UNIX环境高级编程》第二版</p>
+<p>sigsuspend是一个原子操作</p>
+<blockquote>
+<ol>
+<li>
+<p>设置新的mask阻塞当前进程</p>
+</li>
+<li>
+<p>收到信号，恢复原先mask</p>
+</li>
+<li>
+<p>调用该进程设置的信号处理函数</p>
+</li>
+<li>
+<p>待信号处理函数返回后，sigsuspend返回</p>
+</li>
+</ol>
+</blockquote>
+<p>理解：suspend的功能就是将进程当前的屏蔽信号码设置为指定的信号set，让进程挂起，再等待一次非屏蔽的信号，接受到信号后，将信号屏蔽信号码恢复成原样。</p>
+<p>sigsuspend的作用:</p>
+<p>在运行一段程序时，我们可能想要让程序暂时的忽略某个信号，而后执行某个代码片断，执行后复原成原来的屏蔽信号码，接受原来可能在屏蔽其间所发出的被屏蔽掉的信号。
+我们一开始可能想到的是用sigprocmask 和 pause来完成，代码如下：</p>
+<div class="highlight"><pre><span class="cp">#include &lt;stdio.h&gt; </span>
+<span class="cp">#include &lt;stdlib.h&gt; </span>
+<span class="cp">#include &lt;unistd.h&gt; </span>
+<span class="cp">#include &lt;signal.h&gt; </span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> 
+<span class="p">{</span> 
+    <span class="kt">sigset_t</span>    <span class="n">newmask</span><span class="p">,</span> <span class="n">oldmask</span><span class="p">;</span>
+
+    <span class="n">sigemptyset</span><span class="p">(</span><span class="o">&amp;</span><span class="n">newmask</span><span class="p">);</span> 
+    <span class="n">sigaddset</span><span class="p">(</span><span class="o">&amp;</span><span class="n">newmask</span><span class="p">,</span> <span class="n">SIGINT</span><span class="p">);</span>
+
+
+    <span class="cm">/*屏蔽SIGINT信号*/</span> 
+    <span class="k">if</span> <span class="p">(</span><span class="n">sigprocmask</span><span class="p">(</span><span class="n">SIG_BLOCK</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">newmask</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">oldmask</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="p">)</span> <span class="p">{</span> 
+        <span class="n">perror</span><span class="p">(</span><span class="s">&quot;sigprocmask&quot;</span><span class="p">);</span> 
+        <span class="n">exit</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="cm">/*临界区*/</span> 
+    <span class="cm">/*此处是不想被SIGINT信号中断的代码*/</span> 
+   <span class="cm">/*-------code--------*/</span>
+
+    <span class="cm">/*将屏蔽的SIGINT信号恢复*/</span> 
+    <span class="k">if</span> <span class="p">(</span><span class="n">sigprocmask</span><span class="p">(</span><span class="n">SIG_SETMASK</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">oldmask</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span> 
+        <span class="n">perror</span><span class="p">(</span><span class="s">&quot;sigprocmask&quot;</span><span class="p">);</span> 
+        <span class="n">exit</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">);</span>
+    <span class="p">}</span> 
+    <span class="cm">/*用pause接受原来被屏蔽掉的SIGINT信号*/</span> 
+    <span class="n">pause</span><span class="p">();</span>
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span> 
+<span class="p">}</span>
+</pre></div>
+
+
+<p>但是这样做有个问题，当信号在pause()之前发出，如果该信号之发送了一次，那进程先会执行一次信号处理函数，然后将会在pause处永久挂起。
+为了避免这种BUG，引入了sigsuspend(),该函数操作是一个原子操作，也就是说在执行该于原子操作其间，CPU不会进行线程切换，这样就不会被其它的线程所打断。</p>
+<p>修改后的代码如下:</p>
+<div class="highlight"><pre><span class="cp">#include &lt;stdio.h&gt; </span>
+<span class="cp">#include &lt;stdlib.h&gt; </span>
+<span class="cp">#include &lt;signal.h&gt;</span>
+
+<span class="kt">void</span> <span class="nf">handler_sig</span><span class="p">(</span><span class="kt">int</span> <span class="n">signo</span><span class="p">);</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> 
+<span class="p">{</span> 
+    <span class="kt">sigset_t</span>    <span class="n">newmask</span><span class="p">,</span> <span class="n">oldmask</span><span class="p">,</span> <span class="n">zeromask</span><span class="p">;</span>
+
+    <span class="n">sigemptyset</span><span class="p">(</span><span class="o">&amp;</span><span class="n">newmask</span><span class="p">);</span> 
+    <span class="n">sigemptyset</span><span class="p">(</span><span class="o">&amp;</span><span class="n">zeromask</span><span class="p">);</span> 
+    <span class="n">sigaddset</span><span class="p">(</span><span class="o">&amp;</span><span class="n">newmask</span><span class="p">,</span> <span class="n">SIGINT</span><span class="p">);</span>
+
+    <span class="cm">/*安装信号函数*/</span> 
+    <span class="n">signal</span><span class="p">(</span><span class="n">SIGINT</span><span class="p">,</span> <span class="n">handler_sig</span><span class="p">);</span>
+
+
+    <span class="cm">/*屏蔽SIGINT信号*/</span> 
+    <span class="k">if</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="o">==</span> <span class="n">sigprocmask</span><span class="p">(</span><span class="n">SIG_BLOCK</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">newmask</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">oldmask</span><span class="p">))</span> <span class="p">{</span> 
+        <span class="n">perror</span><span class="p">(</span><span class="s">&quot;sigprocmask&quot;</span><span class="p">);</span> 
+        <span class="n">exit</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">);</span> 
+    <span class="p">}</span>
+
+    <span class="cm">/*临界区*/</span> 
+    <span class="cm">/*不想被SIGINT中断的代码*/</span> 
+   <span class="n">sleep</span><span class="p">(</span><span class="mi">30</span><span class="p">);</span>
+
+    <span class="cm">/*用sigsuspend捕获在屏蔽期间内发出的信号,并完成相应的处理函数*/</span> 
+    <span class="k">if</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="o">!=</span> <span class="n">sigsuspend</span><span class="p">(</span><span class="o">&amp;</span><span class="n">zeromask</span><span class="p">))</span> <span class="p">{</span> 
+        <span class="n">perror</span><span class="p">(</span><span class="s">&quot;sigsuspend&quot;</span><span class="p">);</span> 
+        <span class="n">exit</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">);</span> 
+    <span class="p">}</span>
+
+
+    <span class="cm">/*恢复信号屏蔽*/</span> 
+    <span class="k">if</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="o">==</span> <span class="n">sigprocmask</span><span class="p">(</span><span class="n">SIG_SETMASK</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">oldmask</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">))</span> <span class="p">{</span> 
+        <span class="n">perror</span><span class="p">(</span><span class="s">&quot;sigprocmask&quot;</span><span class="p">);</span> 
+        <span class="n">exit</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">);</span> 
+    <span class="p">}</span>
+
+
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span> 
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">handler_sig</span><span class="p">(</span><span class="kt">int</span> <span class="n">signo</span><span class="p">)</span> 
+<span class="p">{</span> 
+    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;revc SIGIO</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span> 
+<span class="p">}</span>
+</pre></div>
+
+
+<p>程序在执行完相应的临界区代码后（此处临界区代码只写了sleep(30),只是为了保证之后在sleep期间收到SIGINT信号，实际中可根据需求加上相应的临界区代码）,用sigsuspend接收在临界区发出的信号,借着执行如下的原子操作: </p>
+<blockquote>
+<ol>
+<li>
+<p>屏蔽&amp;zeromask信号集所包含的信号，此处为空，所以可以捕获所有的信号。</p>
+</li>
+<li>
+<p>捕获非屏蔽的信号，此处即捕获所有的信号。</p>
+</li>
+<li>
+<p>执行捕获到的信号所对应的信号处理函数。</p>
+</li>
+<li>
+<p>将当前所屏蔽的信号恢复成执行sigsuspend之前所屏蔽的信号。</p>
+</li>
+</ol>
+</blockquote>
+<p>执行完4步操作后，程序结束，而不会像之前的程序停在pause()。</p></div>
         <hr />
     </div>
 		
+
+ 
+        
+
+ 
+
+    <div class='article'>
+        <a href="./pages/2013/10/04/guan-yu-zhe-ge-bo-ke.html"><h2>关于这个博客</h2></a>
+        <div class= "well small"> 2013-10-04
+
+by <a class="url fn" href="./author/nonodevil.html">nonoDevil</a>
+ 
+
+
+ </div>
+        <div class="summary"><div class="highlight"><pre><span class="err">之前用过很多博客</span><span class="p">,</span><span class="err">比如</span><span class="n">chinaunix</span><span class="err">、</span><span class="n">diandian</span><span class="p">,</span><span class="err">也用过</span><span class="n">Octpress</span><span class="err">、</span><span class="n">hexo</span><span class="err">，配合</span><span class="n">github</span><span class="err">搭建过静态博客，不过</span><span class="n">js</span><span class="err">和</span><span class="n">Ruby</span><span class="err">都不是很会，所以只会用别人写好的框架，却看不懂实现代码，这让我有些郁闷。暑期在企鹅实习学习了</span><span class="n">Python</span> <span class="n">Web</span><span class="err">开发，在华蟒上也看到有人推荐</span><span class="n">Pelican</span><span class="err">，发现</span><span class="n">Pelican</span><span class="err">是</span><span class="n">python</span><span class="err">写的，而且主题渲染代码也看的懂，所以就果断使用。搭建了这个博客，有了自己的域名，那就好好记录我平时所学所看所想的东西吧</span><span class="o">!</span>
+</pre></div> <a class="btn btn-info xsmall" href="./pages/2013/10/04/guan-yu-zhe-ge-bo-ke.html">read more</a></div>
+    </div>	
+				
 <div class="pagination">
 <ul>
     <li class="prev disabled"><a href="#">&larr; Previous</a></li>
@@ -108,6 +263,7 @@ by <a class="url fn" href="./author/nonodevil.html">nonoDevil</a>
                 Categories
                 </li>
                 
+                <li><a href="./category/c.html">C</a></li>
                 <li><a href="./category/python.html">Python</a></li>
                    
             </ul>
