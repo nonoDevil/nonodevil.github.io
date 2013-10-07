@@ -76,7 +76,11 @@ GOOGLE_ANALYTICS = 'UA-44575590-1'
 PLUGIN_PATH = u"pelican-plugins"
 
 #pelican-plugin in use
-PLUGINS = ["sitemap"]
+PLUGINS = ["sitemap", "neighbors", "related_posts"]
+
+#plugins setting
+#相关文章推荐
+RELATED_POST_MAX = 10
 
 #configure sitemap
 SITEMAP =  {
