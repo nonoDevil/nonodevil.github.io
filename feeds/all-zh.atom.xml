@@ -1,5 +1,205 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>中二社</title><link href="http://nonodevil.com/" rel="alternate"></link><link href="http://nonodevil.com/feeds/all-zh.atom.xml" rel="self"></link><id>http://nonodevil.com/</id><updated>2013-10-06T00:00:00+08:00</updated><entry><title>LinuxC信号屏蔽函数</title><link href="http://nonodevil.com/pages/2013/10/06/linuxcxin-hao-ping-bi-han-shu.html" rel="alternate"></link><updated>2013-10-06T00:00:00+08:00</updated><author><name>nonoDevil</name></author><id>tag:nonodevil.com,2013-10-06:pages/2013/10/06/linuxcxin-hao-ping-bi-han-shu.html</id><summary type="html">&lt;p&gt;先来看看函数原型:&lt;/p&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>中二社</title><link href="http://nonodevil.com/" rel="alternate"></link><link href="http://nonodevil.com/feeds/all-zh.atom.xml" rel="self"></link><id>http://nonodevil.com/</id><updated>2013-10-09T00:43:00+08:00</updated><entry><title>openSUSE安装Disco</title><link href="http://nonodevil.com/pages/2013/10/09/opensusean-zhuang-disco.html" rel="alternate"></link><updated>2013-10-09T00:43:00+08:00</updated><author><name>nonoDevil</name></author><id>tag:nonodevil.com,2013-10-09:pages/2013/10/09/opensusean-zhuang-disco.html</id><summary type="html">&lt;h2&gt;简介&lt;/h2&gt;
+&lt;hr /&gt;
+&lt;p&gt;disco是一个基于erlang开发，python为接口函数的map-reduce框架，可以在单机或者集群上部署,由Nokia公司研发。&lt;/p&gt;
+&lt;h2&gt;安装依赖&lt;/h2&gt;
+&lt;hr /&gt;
+&lt;p&gt;为了快速安装，以下都使用zypper安装，有兴趣的同学可以到各个project的官网下载最新的版本手动编译安装。&lt;/p&gt;
+&lt;p&gt;1.erlang 首先需要有erlang 需要　Erlang/OTP R14A　及以上的版本&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;sudo&lt;/span&gt; &lt;span class="n"&gt;zypper&lt;/span&gt; &lt;span class="n"&gt;install&lt;/span&gt; &lt;span class="n"&gt;erlang&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;2.python 需要　python2.6.6　及以上版本，或　python3.2　及以上版本&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;sudo&lt;/span&gt; &lt;span class="n"&gt;zypper&lt;/span&gt; &lt;span class="n"&gt;install&lt;/span&gt; &lt;span class="n"&gt;python&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;3.ssh server端和client端都需要&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;sudo&lt;/span&gt; &lt;span class="n"&gt;zypper&lt;/span&gt; &lt;span class="n"&gt;install&lt;/span&gt; &lt;span class="n"&gt;ssh&lt;/span&gt;
+&lt;span class="n"&gt;sudo&lt;/span&gt; &lt;span class="n"&gt;zypper&lt;/span&gt; &lt;span class="n"&gt;install&lt;/span&gt; &lt;span class="n"&gt;ssh&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;server&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;4.lighttpd 一个开源Web服务器软件&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;sudo&lt;/span&gt; &lt;span class="n"&gt;zypper&lt;/span&gt; &lt;span class="n"&gt;install&lt;/span&gt; &lt;span class="n"&gt;lighttpd&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;5.varnish　高性能的开源HTTP加速器&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;sudo&lt;/span&gt; &lt;span class="n"&gt;zypper&lt;/span&gt; &lt;span class="n"&gt;install&lt;/span&gt; &lt;span class="n"&gt;varnish&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;6.python-curses disco.core里面需要用到的包,可以到官网下载源码，以手动python setup.py install方式安装。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;sudo&lt;/span&gt; &lt;span class="n"&gt;zypper&lt;/span&gt; &lt;span class="n"&gt;install&lt;/span&gt; &lt;span class="n"&gt;python&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;curses&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;安装Disco&lt;/h2&gt;
+&lt;hr /&gt;
+&lt;h4&gt;make install方式&lt;/h4&gt;
+&lt;p&gt;1.
+    :::shell&lt;br /&gt;
+    git clone git://github.com/discoproject/disco.git
+    cd disco/
+    sudo make install &lt;/p&gt;
+&lt;p&gt;此处我直接使用make install,会把disco相关可执行文件导入到环境变量中，相关的python包也会导入到PYTHONPATH中，省去很多麻烦，当然也可以只make 然后用执行disco目录下的disco相关命令&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Tips: 如果是用集群的话，每个节点上的disco环境要拥有相同的路径，官方建议为每个结点建立一个disco用户，感觉和hadoop类似，使用集群的话，采用make方式，因为不是所有的结点都有root权限去make install&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;2.执行disco&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;disco&lt;/span&gt; &lt;span class="n"&gt;nodaemon&lt;/span&gt;
+
+&lt;span class="err"&gt;没有日志的执行&lt;/span&gt;
+
+&lt;span class="o"&gt;:::&lt;/span&gt;&lt;span class="n"&gt;shell&lt;/span&gt;
+&lt;span class="n"&gt;disco&lt;/span&gt; &lt;span class="n"&gt;start&lt;/span&gt;
+
+&lt;span class="err"&gt;有日志的执行&lt;/span&gt;
+
+&lt;span class="o"&gt;:::&lt;/span&gt;&lt;span class="n"&gt;ps&lt;/span&gt; &lt;span class="n"&gt;aux&lt;/span&gt;&lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="n"&gt;grep&lt;/span&gt; &lt;span class="n"&gt;beam&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;disco&lt;/span&gt;
+&lt;span class="err"&gt;用来查看是否执行成功&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;3.配置ssh密钥&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="err"&gt;配置密钥让&lt;/span&gt;&lt;span class="n"&gt;Disco&lt;/span&gt;&lt;span class="err"&gt;可以不需要密码的去访问集群上所有的结点。&lt;/span&gt;
+
+&lt;span class="o"&gt;:::&lt;/span&gt;&lt;span class="n"&gt;shell&lt;/span&gt;
+&lt;span class="n"&gt;ssh&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;keygen&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;N&lt;/span&gt; &lt;span class="err"&gt;&amp;#39;&amp;#39;&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;f&lt;/span&gt; &lt;span class="o"&gt;~/&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;ssh&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;id_dsa&lt;/span&gt;
+
+&lt;span class="err"&gt;如果只有一个服务端的话，执行如下命令即可，&lt;/span&gt;
+&lt;span class="o"&gt;:::&lt;/span&gt;&lt;span class="n"&gt;shell&lt;/span&gt;
+&lt;span class="n"&gt;cat&lt;/span&gt; &lt;span class="o"&gt;~/&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;ssh&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;id_dsa&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;pub&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="o"&gt;~/&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;ssh&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;authorized_keys&lt;/span&gt;
+
+&lt;span class="err"&gt;否则的话，要给集群上的每个结点都拷贝一份密钥，如下命令&lt;/span&gt;
+&lt;span class="o"&gt;:::&lt;/span&gt;&lt;span class="n"&gt;shell&lt;/span&gt;
+&lt;span class="n"&gt;ssh&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;copy&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;id&lt;/span&gt; &lt;span class="n"&gt;nodeX&lt;/span&gt;
+&lt;span class="n"&gt;nodeX&lt;/span&gt;&lt;span class="err"&gt;是不同结点的主机名&lt;/span&gt;
+
+&lt;span class="err"&gt;如果&lt;/span&gt;&lt;span class="n"&gt;Disco&lt;/span&gt;&lt;span class="err"&gt;运行在许多机器上，那么需要让他们的&lt;/span&gt;&lt;span class="n"&gt;erlang&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;cookie&lt;/span&gt;&lt;span class="err"&gt;保持一直，在&lt;/span&gt;&lt;span class="n"&gt;master&lt;/span&gt; &lt;span class="n"&gt;server&lt;/span&gt;&lt;span class="err"&gt;执行&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+&lt;span class="o"&gt;:::&lt;/span&gt;&lt;span class="n"&gt;shell&lt;/span&gt;
+&lt;span class="n"&gt;scp&lt;/span&gt; &lt;span class="o"&gt;~/&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;erlang&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;cookie&lt;/span&gt; &lt;span class="n"&gt;nodeX&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+&lt;span class="err"&gt;为每个&lt;/span&gt;&lt;span class="n"&gt;nodeX&lt;/span&gt;&lt;span class="err"&gt;都执行这个命令，&lt;/span&gt;&lt;span class="n"&gt;nodeX&lt;/span&gt;&lt;span class="err"&gt;是不同主机名&lt;/span&gt;
+
+&lt;span class="nl"&gt;WARNING:&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;erlang&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;cookie&lt;/span&gt;&lt;span class="err"&gt;必须只对&lt;/span&gt;&lt;span class="n"&gt;disco&lt;/span&gt;&lt;span class="err"&gt;用户可读，即权限为&lt;/span&gt;&lt;span class="mi"&gt;400&lt;/span&gt;
+&lt;span class="o"&gt;:::&lt;/span&gt;&lt;span class="n"&gt;shell&lt;/span&gt;
+&lt;span class="n"&gt;chmod&lt;/span&gt; &lt;span class="mo"&gt;0400&lt;/span&gt; &lt;span class="o"&gt;~/&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;erlang&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;cookie&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;4.为Disco增加结点
+    在浏览器输入http://&amp;lt;DISCO_MASTER_HOST&amp;gt;:&amp;lt;DISCO_PORT$gt;DISCO_MASTER_HOST和DISCO_PORT在disco目录下的lib/disco/settings.py可以查看，一般默认是&lt;a href="http://localhost:8989"&gt;http://localhost:8989&lt;/a&gt;    &lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="err"&gt;如果没有什么问题的话，会出现类似下图的管理界面&lt;/span&gt;
+&lt;span class="o"&gt;!&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;disc&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;main&lt;/span&gt;&lt;span class="p"&gt;](&lt;/span&gt;&lt;span class="n"&gt;http&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="c1"&gt;//disco.readthedocs.org/en/latest/_static/screenshots/disco-main.png)&lt;/span&gt;
+&lt;span class="err"&gt;可以通过&lt;/span&gt; &lt;span class="n"&gt;add&lt;/span&gt; &lt;span class="n"&gt;row&lt;/span&gt; &lt;span class="err"&gt;和&lt;/span&gt; &lt;span class="n"&gt;remove&lt;/span&gt; &lt;span class="err"&gt;按钮来增加／删除节点，修改后记得保存即可&lt;/span&gt;
+
+&lt;span class="nl"&gt;WARNING:&lt;/span&gt;&lt;span class="err"&gt;不建议将集群中的&lt;/span&gt;&lt;span class="n"&gt;master&lt;/span&gt;&lt;span class="err"&gt;结点作为&lt;/span&gt;&lt;span class="n"&gt;slave&lt;/span&gt;&lt;span class="err"&gt;结点&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;5.测试系统
+    在disco目录中的examples/util/目录中有一些测试程序，可以直接使用:
+    :::shell
+    python disco/examples/util/count_words.py&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;disco&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;examples&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;util&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;count_words&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;py&lt;/span&gt;&lt;span class="err"&gt;　这个程序是用来对服务器上的一个文本，进行单词出现数的统计，采用&lt;/span&gt;&lt;span class="n"&gt;map&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;reduce&lt;/span&gt;&lt;span class="err"&gt;方法，将计算过程&lt;/span&gt;&lt;span class="n"&gt;map&lt;/span&gt;&lt;span class="err"&gt;到不同结点计算，再将结果&lt;/span&gt;&lt;span class="n"&gt;reduce&lt;/span&gt;&lt;span class="err"&gt;到一起。&lt;/span&gt;
+&lt;span class="o"&gt;:::&lt;/span&gt;&lt;span class="n"&gt;python&lt;/span&gt;
+&lt;span class="n"&gt;from&lt;/span&gt; &lt;span class="n"&gt;disco&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;core&lt;/span&gt; &lt;span class="n"&gt;import&lt;/span&gt; &lt;span class="n"&gt;Job&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;result_iterator&lt;/span&gt;
+
+&lt;span class="n"&gt;def&lt;/span&gt; &lt;span class="n"&gt;map&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;line&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;params&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+    &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;word&lt;/span&gt; &lt;span class="n"&gt;in&lt;/span&gt; &lt;span class="n"&gt;line&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;split&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+        &lt;span class="n"&gt;yield&lt;/span&gt; &lt;span class="n"&gt;word&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
+
+&lt;span class="n"&gt;def&lt;/span&gt; &lt;span class="n"&gt;reduce&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;iter&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;params&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+    &lt;span class="n"&gt;from&lt;/span&gt; &lt;span class="n"&gt;disco&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;util&lt;/span&gt; &lt;span class="n"&gt;import&lt;/span&gt; &lt;span class="n"&gt;kvgroup&lt;/span&gt;
+    &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;word&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;counts&lt;/span&gt; &lt;span class="n"&gt;in&lt;/span&gt; &lt;span class="n"&gt;kvgroup&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;sorted&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;iter&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+        &lt;span class="n"&gt;yield&lt;/span&gt; &lt;span class="n"&gt;word&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;sum&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;counts&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;__name__&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="n"&gt;__main__&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+    &lt;span class="n"&gt;job&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;   &lt;span class="n"&gt;Job&lt;/span&gt;&lt;span class="p"&gt;().&lt;/span&gt;&lt;span class="n"&gt;run&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;input&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;http://discoproject.org/media/text/chekhov.txt&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt;
+                    &lt;span class="n"&gt;map&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;map&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+                    &lt;span class="n"&gt;reduce&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;reduce&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;word&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;count&lt;/span&gt; &lt;span class="n"&gt;in&lt;/span&gt; &lt;span class="n"&gt;result_iterator&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;job&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;wait&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;show&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;True&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+        &lt;span class="n"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;word&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;count&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="err"&gt;终端执行结果&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+&lt;span class="o"&gt;:::&lt;/span&gt;&lt;span class="n"&gt;shell&lt;/span&gt;
+&lt;span class="n"&gt;Job&lt;/span&gt;&lt;span class="err"&gt;@&lt;/span&gt;&lt;span class="mi"&gt;565&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="n"&gt;cf85&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mf"&gt;2f&lt;/span&gt;&lt;span class="n"&gt;d5b&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+&lt;span class="nl"&gt;Status:&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;map&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt; &lt;span class="n"&gt;waiting&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt; &lt;span class="n"&gt;running&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt; &lt;span class="n"&gt;done&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt; &lt;span class="n"&gt;failed&lt;/span&gt;
+&lt;span class="mi"&gt;2013&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="mi"&gt;09&lt;/span&gt; &lt;span class="mo"&gt;00&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;28&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;53&lt;/span&gt; &lt;span class="n"&gt;master&lt;/span&gt;     &lt;span class="n"&gt;New&lt;/span&gt; &lt;span class="n"&gt;job&lt;/span&gt; &lt;span class="n"&gt;initialized&lt;/span&gt;&lt;span class="o"&gt;!&lt;/span&gt;
+&lt;span class="mi"&gt;2013&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="mi"&gt;09&lt;/span&gt; &lt;span class="mo"&gt;00&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;28&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;53&lt;/span&gt; &lt;span class="n"&gt;master&lt;/span&gt;     &lt;span class="n"&gt;Created&lt;/span&gt; &lt;span class="n"&gt;job&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;Job@565:3cf85:2fd5b&amp;quot;&lt;/span&gt;
+&lt;span class="mi"&gt;2013&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="mi"&gt;09&lt;/span&gt; &lt;span class="mo"&gt;00&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;28&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;53&lt;/span&gt; &lt;span class="n"&gt;master&lt;/span&gt;     &lt;span class="n"&gt;Stage&lt;/span&gt; &lt;span class="n"&gt;map&lt;/span&gt; &lt;span class="n"&gt;scheduled&lt;/span&gt; &lt;span class="n"&gt;with&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="n"&gt;tasks&lt;/span&gt;
+&lt;span class="mi"&gt;2013&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="mi"&gt;09&lt;/span&gt; &lt;span class="mo"&gt;00&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;28&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;53&lt;/span&gt; &lt;span class="n"&gt;master&lt;/span&gt;     &lt;span class="n"&gt;map&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt; &lt;span class="n"&gt;assigned&lt;/span&gt; &lt;span class="n"&gt;to&lt;/span&gt; &lt;span class="n"&gt;localhost&lt;/span&gt;
+&lt;span class="nl"&gt;Status:&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;map&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt; &lt;span class="n"&gt;waiting&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="n"&gt;running&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt; &lt;span class="n"&gt;done&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt; &lt;span class="n"&gt;failed&lt;/span&gt;
+&lt;span class="mi"&gt;2013&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="mi"&gt;09&lt;/span&gt; &lt;span class="mo"&gt;00&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;28&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;53&lt;/span&gt; &lt;span class="n"&gt;master&lt;/span&gt;     &lt;span class="n"&gt;New&lt;/span&gt; &lt;span class="n"&gt;job&lt;/span&gt; &lt;span class="n"&gt;initialized&lt;/span&gt;&lt;span class="o"&gt;!&lt;/span&gt;
+&lt;span class="mi"&gt;2013&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="mi"&gt;09&lt;/span&gt; &lt;span class="mo"&gt;00&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;28&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;53&lt;/span&gt; &lt;span class="n"&gt;master&lt;/span&gt;     &lt;span class="n"&gt;Created&lt;/span&gt; &lt;span class="n"&gt;job&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;Job@565:3cf85:2fd5b&amp;quot;&lt;/span&gt;
+&lt;span class="mi"&gt;2013&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="mi"&gt;09&lt;/span&gt; &lt;span class="mo"&gt;00&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;28&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;53&lt;/span&gt; &lt;span class="n"&gt;master&lt;/span&gt;     &lt;span class="n"&gt;Stage&lt;/span&gt; &lt;span class="n"&gt;map&lt;/span&gt; &lt;span class="n"&gt;scheduled&lt;/span&gt; &lt;span class="n"&gt;with&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="n"&gt;tasks&lt;/span&gt;
+&lt;span class="mi"&gt;2013&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="mi"&gt;09&lt;/span&gt; &lt;span class="mo"&gt;00&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;28&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;53&lt;/span&gt; &lt;span class="n"&gt;master&lt;/span&gt;     &lt;span class="n"&gt;map&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt; &lt;span class="n"&gt;assigned&lt;/span&gt; &lt;span class="n"&gt;to&lt;/span&gt; &lt;span class="n"&gt;localhost&lt;/span&gt;
+&lt;span class="mi"&gt;2013&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="mi"&gt;09&lt;/span&gt; &lt;span class="mo"&gt;00&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;28&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;53&lt;/span&gt; &lt;span class="n"&gt;master&lt;/span&gt;     &lt;span class="n"&gt;New&lt;/span&gt; &lt;span class="n"&gt;job&lt;/span&gt; &lt;span class="n"&gt;initialized&lt;/span&gt;&lt;span class="o"&gt;!&lt;/span&gt;
+&lt;span class="mi"&gt;2013&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="mi"&gt;09&lt;/span&gt; &lt;span class="mo"&gt;00&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;28&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;53&lt;/span&gt; &lt;span class="n"&gt;master&lt;/span&gt;     &lt;span class="n"&gt;Created&lt;/span&gt; &lt;span class="n"&gt;job&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;Job@565:3cf85:2fd5b&amp;quot;&lt;/span&gt;
+&lt;span class="mi"&gt;2013&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="mi"&gt;09&lt;/span&gt; &lt;span class="mo"&gt;00&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;28&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;53&lt;/span&gt; &lt;span class="n"&gt;master&lt;/span&gt;     &lt;span class="n"&gt;Stage&lt;/span&gt; &lt;span class="n"&gt;map&lt;/span&gt; &lt;span class="n"&gt;scheduled&lt;/span&gt; &lt;span class="n"&gt;with&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="n"&gt;tasks&lt;/span&gt;
+&lt;span class="mi"&gt;2013&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="mi"&gt;09&lt;/span&gt; &lt;span class="mo"&gt;00&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;28&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;53&lt;/span&gt; &lt;span class="n"&gt;master&lt;/span&gt;     &lt;span class="n"&gt;map&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt; &lt;span class="n"&gt;assigned&lt;/span&gt; &lt;span class="n"&gt;to&lt;/span&gt; &lt;span class="n"&gt;localhost&lt;/span&gt;
+&lt;span class="nl"&gt;Status:&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;reduce&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt; &lt;span class="n"&gt;waiting&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt; &lt;span class="n"&gt;running&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="n"&gt;done&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt; &lt;span class="n"&gt;failed&lt;/span&gt;
+&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;A&amp;#39;, 2)&lt;/span&gt;
+&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;A.&amp;#39;, 1)&lt;/span&gt;
+&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;And&amp;#39;, 1)&lt;/span&gt;
+&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Anya,&amp;#39;, 1)&lt;/span&gt;
+&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Before&amp;#39;, 1)&lt;/span&gt;
+&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Bobby,&amp;#39;, 1)&lt;/span&gt;
+&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Bravo,&amp;#39;, 1)&lt;/span&gt;
+&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;But&amp;#39;, 1)&lt;/span&gt;
+&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;But,&amp;#39;, 1)&lt;/span&gt;
+&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Can&amp;#39;, 1)&lt;/span&gt;
+&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Co-ee!&amp;#39;, 1)&lt;/span&gt;
+&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Co-ee,&amp;#39;, 1)&lt;/span&gt;
+&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Deeply&amp;#39;, 1)&lt;/span&gt;
+&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Defects,&amp;quot;&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Devil&amp;#39;, 1)&lt;/span&gt;
+&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Do&amp;#39;, 1)&lt;/span&gt;
+&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Don&lt;/span&gt;&lt;span class="se"&gt;\&amp;#39;&lt;/span&gt;&lt;span class="s"&gt;t&amp;#39;, 3)&lt;/span&gt;
+&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Drink!&amp;#39;, 1)&lt;/span&gt;
+&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Encyclopaedic&amp;#39;, 1)&lt;/span&gt;
+&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Every&amp;#39;, 1)&lt;/span&gt;
+&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Everything&lt;/span&gt;&lt;span class="se"&gt;\&amp;#39;&lt;/span&gt;&lt;span class="s"&gt;s&amp;#39;, 1)&lt;/span&gt;
+&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Evstigney,&amp;#39;, 1)&lt;/span&gt;
+&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;For&amp;#39;, 1)&lt;/span&gt;
+&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Furl&amp;#39;, 1)&lt;/span&gt;
+&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;General&amp;quot;&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;General&lt;/span&gt;&lt;span class="se"&gt;\&amp;#39;&lt;/span&gt;&lt;span class="s"&gt;s&amp;quot;&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Go;&amp;#39;, 1)&lt;/span&gt;
+&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Good&amp;#39;, 3)&lt;/span&gt;
+&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Grand&amp;#39;, 1)&lt;/span&gt;
+&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;He&amp;#39;, 3)&lt;/span&gt;
+&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Hoist&amp;#39;, 2)&lt;/span&gt;
+&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;How&amp;#39;, 6)&lt;/span&gt;
+&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Hurry&amp;#39;, 1)&lt;/span&gt;
+&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Husband&amp;#39;, 1)&lt;/span&gt;
+&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;I&amp;#39;, 7)&lt;/span&gt;
+&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;I&lt;/span&gt;&lt;span class="se"&gt;\&amp;#39;&lt;/span&gt;&lt;span class="s"&gt;ll&amp;#39;, 1)&lt;/span&gt;
+&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;I&lt;/span&gt;&lt;span class="se"&gt;\&amp;#39;&lt;/span&gt;&lt;span class="s"&gt;m&amp;#39;, 3)&lt;/span&gt;
+&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;I&lt;/span&gt;&lt;span class="se"&gt;\&amp;#39;&lt;/span&gt;&lt;span class="s"&gt;ve&amp;#39;, 2)&lt;/span&gt;
+&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;If&amp;#39;, 1)&lt;/span&gt;
+&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Information&amp;#39;, 1)&lt;/span&gt;
+&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Irina,&amp;#39;, 1)&lt;/span&gt;
+&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Is&amp;#39;, 1)&lt;/span&gt;
+&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;It&amp;#39;, 2)&lt;/span&gt;
+&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Its&amp;#39;, 1)&lt;/span&gt;
+&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Jump!&amp;quot;&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Ladies,&amp;#39;, 1)&lt;/span&gt;
+&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Les&amp;#39;, 1)&lt;/span&gt;
+&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Let&amp;#39;, 1)&lt;/span&gt;
+&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Let&lt;/span&gt;&lt;span class="se"&gt;\&amp;#39;&lt;/span&gt;&lt;span class="s"&gt;s&amp;#39;, 1)&lt;/span&gt;
+&lt;span class="p"&gt;...&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3&gt;参考资料&lt;/h3&gt;
+&lt;hr /&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;http&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="c1"&gt;//disco.readthedocs.org/en/latest/start/install.html](http://disco.readthedocs.org/en/latest/start/install.html)&lt;/span&gt;
+&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;http&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="c1"&gt;//stackoverflow.com/questions/17706487/no-module-named-disco-core](http://stackoverflow.com/questions/17706487/no-module-named-disco-core)&lt;/span&gt;
+&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;http&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="c1"&gt;//os.chinaunix.net/a2009/0703/994/000000994808.shtml](http://os.chinaunix.net/a2009/0703/994/000000994808.shtml)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;</summary><category term="erlang"></category><category term="python"></category><category term="opensuse"></category><category term="disco"></category></entry><entry><title>LinuxC信号屏蔽函数</title><link href="http://nonodevil.com/pages/2013/10/06/linuxcxin-hao-ping-bi-han-shu.html" rel="alternate"></link><updated>2013-10-06T00:00:00+08:00</updated><author><name>nonoDevil</name></author><id>tag:nonodevil.com,2013-10-06:pages/2013/10/06/linuxcxin-hao-ping-bi-han-shu.html</id><summary type="html">&lt;p&gt;先来看看函数原型:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="cp"&gt;#include &amp;lt;signal.h&amp;gt;&lt;/span&gt;
 &lt;span class="kt"&gt;int&lt;/span&gt;     &lt;span class="nf"&gt;sigsuspend&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;const&lt;/span&gt; &lt;span class="kt"&gt;sigset_t&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;mask&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;

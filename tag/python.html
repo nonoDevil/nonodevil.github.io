@@ -57,8 +57,8 @@
 
     <div class='article'>
         <div class="content-title">
-            <a href="../pages/2013/10/04/first-blog.html"><h1>first blog</h1></a>
-2013-10-04
+            <a href="../pages/2013/10/09/opensusean-zhuang-disco.html"><h1>openSUSE安装Disco</h1></a>
+2013-10-09
 
 by <a class="url fn" href="../author/nonodevil.html">nonoDevil</a>
  
@@ -67,8 +67,207 @@ by <a class="url fn" href="../author/nonodevil.html">nonoDevil</a>
  
         </div>
         
-        <div><h2>第一篇博文</h2>
-<p>Hello pelican</p></div>
+        <div><h2>简介</h2>
+<hr />
+<p>disco是一个基于erlang开发，python为接口函数的map-reduce框架，可以在单机或者集群上部署,由Nokia公司研发。</p>
+<h2>安装依赖</h2>
+<hr />
+<p>为了快速安装，以下都使用zypper安装，有兴趣的同学可以到各个project的官网下载最新的版本手动编译安装。</p>
+<p>1.erlang 首先需要有erlang 需要　Erlang/OTP R14A　及以上的版本</p>
+<div class="highlight"><pre><span class="n">sudo</span> <span class="n">zypper</span> <span class="n">install</span> <span class="n">erlang</span>
+</pre></div>
+
+
+<p>2.python 需要　python2.6.6　及以上版本，或　python3.2　及以上版本</p>
+<div class="highlight"><pre><span class="n">sudo</span> <span class="n">zypper</span> <span class="n">install</span> <span class="n">python</span>
+</pre></div>
+
+
+<p>3.ssh server端和client端都需要</p>
+<div class="highlight"><pre><span class="n">sudo</span> <span class="n">zypper</span> <span class="n">install</span> <span class="n">ssh</span>
+<span class="n">sudo</span> <span class="n">zypper</span> <span class="n">install</span> <span class="n">ssh</span><span class="o">-</span><span class="n">server</span>
+</pre></div>
+
+
+<p>4.lighttpd 一个开源Web服务器软件</p>
+<div class="highlight"><pre><span class="n">sudo</span> <span class="n">zypper</span> <span class="n">install</span> <span class="n">lighttpd</span>
+</pre></div>
+
+
+<p>5.varnish　高性能的开源HTTP加速器</p>
+<div class="highlight"><pre><span class="n">sudo</span> <span class="n">zypper</span> <span class="n">install</span> <span class="n">varnish</span>
+</pre></div>
+
+
+<p>6.python-curses disco.core里面需要用到的包,可以到官网下载源码，以手动python setup.py install方式安装。</p>
+<div class="highlight"><pre><span class="n">sudo</span> <span class="n">zypper</span> <span class="n">install</span> <span class="n">python</span><span class="o">-</span><span class="n">curses</span>
+</pre></div>
+
+
+<h2>安装Disco</h2>
+<hr />
+<h4>make install方式</h4>
+<p>1.
+    :::shell<br />
+    git clone git://github.com/discoproject/disco.git
+    cd disco/
+    sudo make install </p>
+<p>此处我直接使用make install,会把disco相关可执行文件导入到环境变量中，相关的python包也会导入到PYTHONPATH中，省去很多麻烦，当然也可以只make 然后用执行disco目录下的disco相关命令</p>
+<blockquote>
+<p>Tips: 如果是用集群的话，每个节点上的disco环境要拥有相同的路径，官方建议为每个结点建立一个disco用户，感觉和hadoop类似，使用集群的话，采用make方式，因为不是所有的结点都有root权限去make install</p>
+</blockquote>
+<p>2.执行disco</p>
+<div class="highlight"><pre><span class="n">disco</span> <span class="n">nodaemon</span>
+
+<span class="err">没有日志的执行</span>
+
+<span class="o">:::</span><span class="n">shell</span>
+<span class="n">disco</span> <span class="n">start</span>
+
+<span class="err">有日志的执行</span>
+
+<span class="o">:::</span><span class="n">ps</span> <span class="n">aux</span><span class="o">|</span><span class="n">grep</span> <span class="n">beam</span><span class="p">.</span><span class="o">*</span><span class="n">disco</span>
+<span class="err">用来查看是否执行成功</span>
+</pre></div>
+
+
+<p>3.配置ssh密钥</p>
+<div class="highlight"><pre><span class="err">配置密钥让</span><span class="n">Disco</span><span class="err">可以不需要密码的去访问集群上所有的结点。</span>
+
+<span class="o">:::</span><span class="n">shell</span>
+<span class="n">ssh</span><span class="o">-</span><span class="n">keygen</span> <span class="o">-</span><span class="n">N</span> <span class="err">&#39;&#39;</span> <span class="o">-</span><span class="n">f</span> <span class="o">~/</span><span class="p">.</span><span class="n">ssh</span><span class="o">/</span><span class="n">id_dsa</span>
+
+<span class="err">如果只有一个服务端的话，执行如下命令即可，</span>
+<span class="o">:::</span><span class="n">shell</span>
+<span class="n">cat</span> <span class="o">~/</span><span class="p">.</span><span class="n">ssh</span><span class="o">/</span><span class="n">id_dsa</span><span class="p">.</span><span class="n">pub</span> <span class="o">&gt;&gt;</span> <span class="o">~/</span><span class="p">.</span><span class="n">ssh</span><span class="o">/</span><span class="n">authorized_keys</span>
+
+<span class="err">否则的话，要给集群上的每个结点都拷贝一份密钥，如下命令</span>
+<span class="o">:::</span><span class="n">shell</span>
+<span class="n">ssh</span><span class="o">-</span><span class="n">copy</span><span class="o">-</span><span class="n">id</span> <span class="n">nodeX</span>
+<span class="n">nodeX</span><span class="err">是不同结点的主机名</span>
+
+<span class="err">如果</span><span class="n">Disco</span><span class="err">运行在许多机器上，那么需要让他们的</span><span class="n">erlang</span><span class="p">.</span><span class="n">cookie</span><span class="err">保持一直，在</span><span class="n">master</span> <span class="n">server</span><span class="err">执行</span><span class="o">:</span>
+<span class="o">:::</span><span class="n">shell</span>
+<span class="n">scp</span> <span class="o">~/</span><span class="p">.</span><span class="n">erlang</span><span class="p">.</span><span class="n">cookie</span> <span class="n">nodeX</span><span class="o">:</span>
+<span class="err">为每个</span><span class="n">nodeX</span><span class="err">都执行这个命令，</span><span class="n">nodeX</span><span class="err">是不同主机名</span>
+
+<span class="nl">WARNING:</span><span class="p">.</span><span class="n">erlang</span><span class="p">.</span><span class="n">cookie</span><span class="err">必须只对</span><span class="n">disco</span><span class="err">用户可读，即权限为</span><span class="mi">400</span>
+<span class="o">:::</span><span class="n">shell</span>
+<span class="n">chmod</span> <span class="mo">0400</span> <span class="o">~/</span><span class="p">.</span><span class="n">erlang</span><span class="p">.</span><span class="n">cookie</span>
+</pre></div>
+
+
+<p>4.为Disco增加结点
+    在浏览器输入http://&lt;DISCO_MASTER_HOST&gt;:&lt;DISCO_PORT$gt;DISCO_MASTER_HOST和DISCO_PORT在disco目录下的lib/disco/settings.py可以查看，一般默认是<a href="http://localhost:8989">http://localhost:8989</a>    </p>
+<div class="highlight"><pre><span class="err">如果没有什么问题的话，会出现类似下图的管理界面</span>
+<span class="o">!</span><span class="p">[</span><span class="n">disc</span><span class="o">-</span><span class="n">main</span><span class="p">](</span><span class="n">http</span><span class="o">:</span><span class="c1">//disco.readthedocs.org/en/latest/_static/screenshots/disco-main.png)</span>
+<span class="err">可以通过</span> <span class="n">add</span> <span class="n">row</span> <span class="err">和</span> <span class="n">remove</span> <span class="err">按钮来增加／删除节点，修改后记得保存即可</span>
+
+<span class="nl">WARNING:</span><span class="err">不建议将集群中的</span><span class="n">master</span><span class="err">结点作为</span><span class="n">slave</span><span class="err">结点</span>
+</pre></div>
+
+
+<p>5.测试系统
+    在disco目录中的examples/util/目录中有一些测试程序，可以直接使用:
+    :::shell
+    python disco/examples/util/count_words.py</p>
+<div class="highlight"><pre><span class="n">disco</span><span class="o">/</span><span class="n">examples</span><span class="o">/</span><span class="n">util</span><span class="o">/</span><span class="n">count_words</span><span class="p">.</span><span class="n">py</span><span class="err">　这个程序是用来对服务器上的一个文本，进行单词出现数的统计，采用</span><span class="n">map</span><span class="o">-</span><span class="n">reduce</span><span class="err">方法，将计算过程</span><span class="n">map</span><span class="err">到不同结点计算，再将结果</span><span class="n">reduce</span><span class="err">到一起。</span>
+<span class="o">:::</span><span class="n">python</span>
+<span class="n">from</span> <span class="n">disco</span><span class="p">.</span><span class="n">core</span> <span class="n">import</span> <span class="n">Job</span><span class="p">,</span> <span class="n">result_iterator</span>
+
+<span class="n">def</span> <span class="n">map</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span><span class="o">:</span>
+    <span class="k">for</span> <span class="n">word</span> <span class="n">in</span> <span class="n">line</span><span class="p">.</span><span class="n">split</span><span class="p">()</span><span class="o">:</span>
+        <span class="n">yield</span> <span class="n">word</span><span class="p">,</span> <span class="mi">1</span>
+
+<span class="n">def</span> <span class="n">reduce</span><span class="p">(</span><span class="n">iter</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span><span class="o">:</span>
+    <span class="n">from</span> <span class="n">disco</span><span class="p">.</span><span class="n">util</span> <span class="n">import</span> <span class="n">kvgroup</span>
+    <span class="k">for</span> <span class="n">word</span><span class="p">,</span> <span class="n">counts</span> <span class="n">in</span> <span class="n">kvgroup</span><span class="p">(</span><span class="n">sorted</span><span class="p">(</span><span class="n">iter</span><span class="p">))</span><span class="o">:</span>
+        <span class="n">yield</span> <span class="n">word</span><span class="p">,</span> <span class="n">sum</span><span class="p">(</span><span class="n">counts</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="err">&#39;</span><span class="n">__main__</span><span class="err">&#39;</span><span class="o">:</span>
+    <span class="n">job</span> <span class="o">=</span>   <span class="n">Job</span><span class="p">().</span><span class="n">run</span><span class="p">(</span><span class="n">input</span><span class="o">=</span><span class="p">[</span><span class="s">&quot;http://discoproject.org/media/text/chekhov.txt&quot;</span><span class="p">],</span>
+                    <span class="n">map</span><span class="o">=</span><span class="n">map</span><span class="p">,</span>
+                    <span class="n">reduce</span><span class="o">=</span><span class="n">reduce</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">word</span><span class="p">,</span> <span class="n">count</span> <span class="n">in</span> <span class="n">result_iterator</span><span class="p">(</span><span class="n">job</span><span class="p">.</span><span class="n">wait</span><span class="p">(</span><span class="n">show</span><span class="o">=</span><span class="n">True</span><span class="p">))</span><span class="o">:</span>
+        <span class="n">print</span><span class="p">(</span><span class="n">word</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
+
+<span class="err">终端执行结果</span><span class="o">:</span>
+<span class="o">:::</span><span class="n">shell</span>
+<span class="n">Job</span><span class="err">@</span><span class="mi">565</span><span class="o">:</span><span class="mi">3</span><span class="n">cf85</span><span class="o">:</span><span class="mf">2f</span><span class="n">d5b</span><span class="o">:</span>
+<span class="nl">Status:</span> <span class="p">[</span><span class="n">map</span><span class="p">]</span> <span class="mi">0</span> <span class="n">waiting</span><span class="p">,</span> <span class="mi">0</span> <span class="n">running</span><span class="p">,</span> <span class="mi">0</span> <span class="n">done</span><span class="p">,</span> <span class="mi">0</span> <span class="n">failed</span>
+<span class="mi">2013</span><span class="o">/</span><span class="mi">10</span><span class="o">/</span><span class="mi">09</span> <span class="mo">00</span><span class="o">:</span><span class="mi">28</span><span class="o">:</span><span class="mi">53</span> <span class="n">master</span>     <span class="n">New</span> <span class="n">job</span> <span class="n">initialized</span><span class="o">!</span>
+<span class="mi">2013</span><span class="o">/</span><span class="mi">10</span><span class="o">/</span><span class="mi">09</span> <span class="mo">00</span><span class="o">:</span><span class="mi">28</span><span class="o">:</span><span class="mi">53</span> <span class="n">master</span>     <span class="n">Created</span> <span class="n">job</span> <span class="s">&quot;Job@565:3cf85:2fd5b&quot;</span>
+<span class="mi">2013</span><span class="o">/</span><span class="mi">10</span><span class="o">/</span><span class="mi">09</span> <span class="mo">00</span><span class="o">:</span><span class="mi">28</span><span class="o">:</span><span class="mi">53</span> <span class="n">master</span>     <span class="n">Stage</span> <span class="n">map</span> <span class="n">scheduled</span> <span class="n">with</span> <span class="mi">1</span> <span class="n">tasks</span>
+<span class="mi">2013</span><span class="o">/</span><span class="mi">10</span><span class="o">/</span><span class="mi">09</span> <span class="mo">00</span><span class="o">:</span><span class="mi">28</span><span class="o">:</span><span class="mi">53</span> <span class="n">master</span>     <span class="n">map</span><span class="o">:</span><span class="mi">0</span> <span class="n">assigned</span> <span class="n">to</span> <span class="n">localhost</span>
+<span class="nl">Status:</span> <span class="p">[</span><span class="n">map</span><span class="p">]</span> <span class="mi">0</span> <span class="n">waiting</span><span class="p">,</span> <span class="mi">1</span> <span class="n">running</span><span class="p">,</span> <span class="mi">0</span> <span class="n">done</span><span class="p">,</span> <span class="mi">0</span> <span class="n">failed</span>
+<span class="mi">2013</span><span class="o">/</span><span class="mi">10</span><span class="o">/</span><span class="mi">09</span> <span class="mo">00</span><span class="o">:</span><span class="mi">28</span><span class="o">:</span><span class="mi">53</span> <span class="n">master</span>     <span class="n">New</span> <span class="n">job</span> <span class="n">initialized</span><span class="o">!</span>
+<span class="mi">2013</span><span class="o">/</span><span class="mi">10</span><span class="o">/</span><span class="mi">09</span> <span class="mo">00</span><span class="o">:</span><span class="mi">28</span><span class="o">:</span><span class="mi">53</span> <span class="n">master</span>     <span class="n">Created</span> <span class="n">job</span> <span class="s">&quot;Job@565:3cf85:2fd5b&quot;</span>
+<span class="mi">2013</span><span class="o">/</span><span class="mi">10</span><span class="o">/</span><span class="mi">09</span> <span class="mo">00</span><span class="o">:</span><span class="mi">28</span><span class="o">:</span><span class="mi">53</span> <span class="n">master</span>     <span class="n">Stage</span> <span class="n">map</span> <span class="n">scheduled</span> <span class="n">with</span> <span class="mi">1</span> <span class="n">tasks</span>
+<span class="mi">2013</span><span class="o">/</span><span class="mi">10</span><span class="o">/</span><span class="mi">09</span> <span class="mo">00</span><span class="o">:</span><span class="mi">28</span><span class="o">:</span><span class="mi">53</span> <span class="n">master</span>     <span class="n">map</span><span class="o">:</span><span class="mi">0</span> <span class="n">assigned</span> <span class="n">to</span> <span class="n">localhost</span>
+<span class="mi">2013</span><span class="o">/</span><span class="mi">10</span><span class="o">/</span><span class="mi">09</span> <span class="mo">00</span><span class="o">:</span><span class="mi">28</span><span class="o">:</span><span class="mi">53</span> <span class="n">master</span>     <span class="n">New</span> <span class="n">job</span> <span class="n">initialized</span><span class="o">!</span>
+<span class="mi">2013</span><span class="o">/</span><span class="mi">10</span><span class="o">/</span><span class="mi">09</span> <span class="mo">00</span><span class="o">:</span><span class="mi">28</span><span class="o">:</span><span class="mi">53</span> <span class="n">master</span>     <span class="n">Created</span> <span class="n">job</span> <span class="s">&quot;Job@565:3cf85:2fd5b&quot;</span>
+<span class="mi">2013</span><span class="o">/</span><span class="mi">10</span><span class="o">/</span><span class="mi">09</span> <span class="mo">00</span><span class="o">:</span><span class="mi">28</span><span class="o">:</span><span class="mi">53</span> <span class="n">master</span>     <span class="n">Stage</span> <span class="n">map</span> <span class="n">scheduled</span> <span class="n">with</span> <span class="mi">1</span> <span class="n">tasks</span>
+<span class="mi">2013</span><span class="o">/</span><span class="mi">10</span><span class="o">/</span><span class="mi">09</span> <span class="mo">00</span><span class="o">:</span><span class="mi">28</span><span class="o">:</span><span class="mi">53</span> <span class="n">master</span>     <span class="n">map</span><span class="o">:</span><span class="mi">0</span> <span class="n">assigned</span> <span class="n">to</span> <span class="n">localhost</span>
+<span class="nl">Status:</span> <span class="p">[</span><span class="n">reduce</span><span class="p">]</span> <span class="mi">0</span> <span class="n">waiting</span><span class="p">,</span> <span class="mi">0</span> <span class="n">running</span><span class="p">,</span> <span class="mi">1</span> <span class="n">done</span><span class="p">,</span> <span class="mi">0</span> <span class="n">failed</span>
+<span class="p">(</span><span class="err">&#39;</span><span class="s">&quot;A&#39;, 2)</span>
+<span class="p">(</span><span class="err">&#39;</span><span class="s">&quot;A.&#39;, 1)</span>
+<span class="p">(</span><span class="err">&#39;</span><span class="s">&quot;And&#39;, 1)</span>
+<span class="p">(</span><span class="err">&#39;</span><span class="s">&quot;Anya,&#39;, 1)</span>
+<span class="p">(</span><span class="err">&#39;</span><span class="s">&quot;Before&#39;, 1)</span>
+<span class="p">(</span><span class="err">&#39;</span><span class="s">&quot;Bobby,&#39;, 1)</span>
+<span class="p">(</span><span class="err">&#39;</span><span class="s">&quot;Bravo,&#39;, 1)</span>
+<span class="p">(</span><span class="err">&#39;</span><span class="s">&quot;But&#39;, 1)</span>
+<span class="p">(</span><span class="err">&#39;</span><span class="s">&quot;But,&#39;, 1)</span>
+<span class="p">(</span><span class="err">&#39;</span><span class="s">&quot;Can&#39;, 1)</span>
+<span class="p">(</span><span class="err">&#39;</span><span class="s">&quot;Co-ee!&#39;, 1)</span>
+<span class="p">(</span><span class="err">&#39;</span><span class="s">&quot;Co-ee,&#39;, 1)</span>
+<span class="p">(</span><span class="err">&#39;</span><span class="s">&quot;Deeply&#39;, 1)</span>
+<span class="p">(</span><span class="err">&#39;</span><span class="s">&quot;Defects,&quot;</span><span class="err">&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="p">(</span><span class="err">&#39;</span><span class="s">&quot;Devil&#39;, 1)</span>
+<span class="p">(</span><span class="err">&#39;</span><span class="s">&quot;Do&#39;, 1)</span>
+<span class="p">(</span><span class="err">&#39;</span><span class="s">&quot;Don</span><span class="se">\&#39;</span><span class="s">t&#39;, 3)</span>
+<span class="p">(</span><span class="err">&#39;</span><span class="s">&quot;Drink!&#39;, 1)</span>
+<span class="p">(</span><span class="err">&#39;</span><span class="s">&quot;Encyclopaedic&#39;, 1)</span>
+<span class="p">(</span><span class="err">&#39;</span><span class="s">&quot;Every&#39;, 1)</span>
+<span class="p">(</span><span class="err">&#39;</span><span class="s">&quot;Everything</span><span class="se">\&#39;</span><span class="s">s&#39;, 1)</span>
+<span class="p">(</span><span class="err">&#39;</span><span class="s">&quot;Evstigney,&#39;, 1)</span>
+<span class="p">(</span><span class="err">&#39;</span><span class="s">&quot;For&#39;, 1)</span>
+<span class="p">(</span><span class="err">&#39;</span><span class="s">&quot;Furl&#39;, 1)</span>
+<span class="p">(</span><span class="err">&#39;</span><span class="s">&quot;General&quot;</span><span class="err">&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="p">(</span><span class="err">&#39;</span><span class="s">&quot;General</span><span class="se">\&#39;</span><span class="s">s&quot;</span><span class="err">&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="p">(</span><span class="err">&#39;</span><span class="s">&quot;Go;&#39;, 1)</span>
+<span class="p">(</span><span class="err">&#39;</span><span class="s">&quot;Good&#39;, 3)</span>
+<span class="p">(</span><span class="err">&#39;</span><span class="s">&quot;Grand&#39;, 1)</span>
+<span class="p">(</span><span class="err">&#39;</span><span class="s">&quot;He&#39;, 3)</span>
+<span class="p">(</span><span class="err">&#39;</span><span class="s">&quot;Hoist&#39;, 2)</span>
+<span class="p">(</span><span class="err">&#39;</span><span class="s">&quot;How&#39;, 6)</span>
+<span class="p">(</span><span class="err">&#39;</span><span class="s">&quot;Hurry&#39;, 1)</span>
+<span class="p">(</span><span class="err">&#39;</span><span class="s">&quot;Husband&#39;, 1)</span>
+<span class="p">(</span><span class="err">&#39;</span><span class="s">&quot;I&#39;, 7)</span>
+<span class="p">(</span><span class="err">&#39;</span><span class="s">&quot;I</span><span class="se">\&#39;</span><span class="s">ll&#39;, 1)</span>
+<span class="p">(</span><span class="err">&#39;</span><span class="s">&quot;I</span><span class="se">\&#39;</span><span class="s">m&#39;, 3)</span>
+<span class="p">(</span><span class="err">&#39;</span><span class="s">&quot;I</span><span class="se">\&#39;</span><span class="s">ve&#39;, 2)</span>
+<span class="p">(</span><span class="err">&#39;</span><span class="s">&quot;If&#39;, 1)</span>
+<span class="p">(</span><span class="err">&#39;</span><span class="s">&quot;Information&#39;, 1)</span>
+<span class="p">(</span><span class="err">&#39;</span><span class="s">&quot;Irina,&#39;, 1)</span>
+<span class="p">(</span><span class="err">&#39;</span><span class="s">&quot;Is&#39;, 1)</span>
+<span class="p">(</span><span class="err">&#39;</span><span class="s">&quot;It&#39;, 2)</span>
+<span class="p">(</span><span class="err">&#39;</span><span class="s">&quot;Its&#39;, 1)</span>
+<span class="p">(</span><span class="err">&#39;</span><span class="s">&quot;Jump!&quot;</span><span class="err">&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="p">(</span><span class="err">&#39;</span><span class="s">&quot;Ladies,&#39;, 1)</span>
+<span class="p">(</span><span class="err">&#39;</span><span class="s">&quot;Les&#39;, 1)</span>
+<span class="p">(</span><span class="err">&#39;</span><span class="s">&quot;Let&#39;, 1)</span>
+<span class="p">(</span><span class="err">&#39;</span><span class="s">&quot;Let</span><span class="se">\&#39;</span><span class="s">s&#39;, 1)</span>
+<span class="p">...</span>
+</pre></div>
+
+
+<h3>参考资料</h3>
+<hr />
+<div class="highlight"><pre><span class="p">[</span><span class="n">http</span><span class="o">:</span><span class="c1">//disco.readthedocs.org/en/latest/start/install.html](http://disco.readthedocs.org/en/latest/start/install.html)</span>
+<span class="p">[</span><span class="n">http</span><span class="o">:</span><span class="c1">//stackoverflow.com/questions/17706487/no-module-named-disco-core](http://stackoverflow.com/questions/17706487/no-module-named-disco-core)</span>
+<span class="p">[</span><span class="n">http</span><span class="o">:</span><span class="c1">//os.chinaunix.net/a2009/0703/994/000000994808.shtml](http://os.chinaunix.net/a2009/0703/994/000000994808.shtml)</span>
+</pre></div></div>
         <hr />
     </div>
 		
@@ -109,7 +308,8 @@ by <a class="url fn" href="../author/nonodevil.html">nonoDevil</a>
                 </li>
                 
                 <li><a href="../category/c.html">C</a></li>
-                <li><a href="../category/python.html">Python</a></li>
+                <li><a href="../category/life.html">Life</a></li>
+                <li><a href="../category/python.html">python</a></li>
                    
             </ul>
             </div>
