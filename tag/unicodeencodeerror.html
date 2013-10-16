@@ -9,14 +9,14 @@
 
     <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
     <!--[if lt IE 9]>
-    <script src="./theme/html5.js"></script>
+    <script src="../theme/html5.js"></script>
     <![endif]-->
 
     <!-- Le styles -->
-    <link href="./theme/bootstrap.min.css" rel="stylesheet">
-    <link href="./theme/bootstrap.min.responsive.css" rel="stylesheet">
-    <link href="./theme/local.css" rel="stylesheet">
-    <link href="./theme/pygments.css" rel="stylesheet">
+    <link href="../theme/bootstrap.min.css" rel="stylesheet">
+    <link href="../theme/bootstrap.min.responsive.css" rel="stylesheet">
+    <link href="../theme/local.css" rel="stylesheet">
+    <link href="../theme/pygments.css" rel="stylesheet">
 
 </head>
 
@@ -32,12 +32,12 @@
              <span class="icon-bar"></span>
          </a>
 
-        <a class="brand" href=".">中二社</a>
+        <a class="brand" href="..">中二社</a>
 
         <div class="nav-collapse">
         <ul class="nav">
             
-            <li><a href="./pages/about.html">About</a></li>
+            <li><a href="../pages/about.html">About</a></li>
         </ul>
         </div>
         
@@ -57,10 +57,10 @@
 
     <div class='article'>
         <div class="content-title">
-            <a href="./pages/2013/10/16/jie-jue-unicodeencodeerrorascii-codec-cantt-encode-characters-in-position-de-wen-ti.html"><h1>解决 UnicodeEncodeError:'ascii' codec cant't encode characters in position 的问题</h1></a>
+            <a href="../pages/2013/10/16/jie-jue-unicodeencodeerrorascii-codec-cantt-encode-characters-in-position-de-wen-ti.html"><h1>解决 UnicodeEncodeError:'ascii' codec cant't encode characters in position 的问题</h1></a>
 2013-10-16
 
-by <a class="url fn" href="./author/nonodevil.html">nonoDevil</a>
+by <a class="url fn" href="../author/nonodevil.html">nonoDevil</a>
  
 
 
@@ -84,116 +84,11 @@ by <a class="url fn" href="./author/nonodevil.html">nonoDevil</a>
         <hr />
     </div>
 		
-
- 
-        
-
- 
-
-    <div class='article'>
-        <a href="./pages/2013/10/09/opensusean-zhuang-disco.html"><h2>openSUSE安装Disco</h2></a>
-        <div class= "well small"> 2013-10-09
-
-by <a class="url fn" href="./author/nonodevil.html">nonoDevil</a>
- 
-
-
- </div>
-        <div class="summary"><h2>简介</h2>
-<hr />
-<p>disco是一个基于erlang开发，python为接口函数的map-reduce框架，可以在单机或者集群上部署,由Nokia公司研发。</p>
-<h2>安装依赖</h2>
-<hr />
-<p>为了快速安装，以下都使用zypper安装，有兴趣的同学可以到各个project的官网下载最新的版本手动编译安装。</p>
-<p>1.erlang 首先需要有erlang 需要　Erlang/OTP R14A　及以上的版本</p>
-<div class="highlight"><pre>sudo zypper install erlang
-</pre></div>
-
-
-<p>2.python 需要　python2.6.6　及以上版本，或　python3.2　及以上版本</p>
-<div class="highlight"><pre>sudo zypper install python
-</pre></div>
-
-
-<p>3.ssh server端和client端都需要</p>
-<div class="highlight"><pre>sudo zypper install ssh
-sudo zypper install ssh-server
-</pre></div>
-
-
-<p>4.lighttpd 一个开源Web服务器软件 ...</p> <a class="btn btn-info xsmall" href="./pages/2013/10/09/opensusean-zhuang-disco.html">read more</a></div>
-    </div>	
-				
-
- 
-        
-
- 
-
-    <div class='article'>
-        <a href="./pages/2013/10/06/linuxcxin-hao-ping-bi-han-shu.html"><h2>LinuxC信号屏蔽函数</h2></a>
-        <div class= "well small"> 2013-10-06
-
-by <a class="url fn" href="./author/nonodevil.html">nonoDevil</a>
- 
-
-
- </div>
-        <div class="summary"><p>先来看看函数原型:</p>
-<div class="highlight"><pre><span class="cp">#include &lt;signal.h&gt;</span>
-<span class="kt">int</span>     <span class="nf">sigsuspend</span><span class="p">(</span><span class="k">const</span> <span class="kt">sigset_t</span> <span class="o">*</span><span class="n">mask</span><span class="p">);</span>
-</pre></div>
-
-
-<p>函数sigsuspend将进程的信号屏蔽码设置为mask，然后与pause()函数一样等待信号的发生并执行完信号处理函数。信号处理函数执行完后再把进程的信号屏蔽码设置为原来的屏蔽字，然后sigsuspend函数才返回。 Sigsuspend总是返回-1。 --------《LinuxC编程实战》</p>
-<p>将进程的信号屏蔽字设置为由sigmask指向的值。在捕捉到一个信号或发生了一个会终止该进程的信号之前，该进程被挂起。如果捕捉到一个信号而且从该信号处理程序返回，则sigsuspend返回，并且将该进程的信号屏蔽字设置为调用sigsuspend之前的值。
-注意，此函数没有成功返回值。如果它返回到调用者则总是返回-1，并将errno设置为EINTR(表示为一个被中断的系统调用)。   ------ 《UNIX环境高级编程》第二版</p>
-<p>sigsuspend是一个原子操作</p>
-<blockquote>
-<ol>
-<li>
-<p>设置新的mask阻塞当前进程</p>
-</li>
-<li>
-<p>收到信号，恢复原先mask</p>
-</li>
-<li>
-<p>调用该进程设置的信号处理函数</p>
-</li>
-<li>
-<p>待信号处理函数返回后，sigsuspend返回</p>
-</li>
-</ol>
-</blockquote>
-<p>理解：suspend的功能就是将进程当前的屏蔽信号码设置为指定的信号set，让进程挂起，再等待一次非屏蔽的信号，接受到信号后，将信号屏蔽信号码恢复成原样。</p>
-<p>sigsuspend的作用:</p>
-<p>在运行一段程序时，我们可能想要让程序暂时的忽略某个信号，而后执行某个代码片断，执行后复原成原来的屏蔽信号码，接受原来可能在屏蔽其间所发出的被屏蔽掉的信号。
-我们一开始可能想到的是用sigprocmask 和 ...</p> <a class="btn btn-info xsmall" href="./pages/2013/10/06/linuxcxin-hao-ping-bi-han-shu.html">read more</a></div>
-    </div>	
-				
-
- 
-        
-
- 
-
-    <div class='article'>
-        <a href="./pages/2013/10/04/guan-yu-zhe-ge-bo-ke.html"><h2>关于这个博客</h2></a>
-        <div class= "well small"> 2013-10-04
-
-by <a class="url fn" href="./author/nonodevil.html">nonoDevil</a>
- 
-
-
- </div>
-        <div class="summary"><p>之前用过很多博客,比如chinaunix、diandian,也用过Octpress、hexo，配合github搭建过静态博客，不过js和Ruby都不是很会，所以只会用别人写好的框架，却看不懂实现代码，这让我有些郁闷。暑期在企鹅实习学习了Python Web开发，在华蟒上也看到有人推荐Pelican，发现Pelican是python写的，而且主题渲染代码也看的懂，所以就果断使用。搭建了这个博客，有了自己的域名，那就好好记录我平时所学所看所想的东西吧!</p> <a class="btn btn-info xsmall" href="./pages/2013/10/04/guan-yu-zhe-ge-bo-ke.html">read more</a></div>
-    </div>	
-				
 <div class="pagination">
 <ul>
     <li class="prev disabled"><a href="#">&larr; Previous</a></li>
 
-    <li class="active"><a href="./index.html">1</a></li>
+    <li class="active"><a href="../tag/unicodeencodeerror.html">1</a></li>
 
     <li class="next disabled"><a href="#">&rarr; Next</a></li>
 
@@ -211,8 +106,8 @@ by <a class="url fn" href="./author/nonodevil.html">nonoDevil</a>
                 Site
                 </li>
             
-                <li><a href="./archives.html">Archives</a>
-                <li><a href="./tags.html">Tags</a>
+                <li><a href="../archives.html">Archives</a>
+                <li><a href="../tags.html">Tags</a>
                 <li><a href="http://nonodevil.com/" rel="alternate">Atom feed</a></li>
                 <li><a href="http://nonodevil.com/feeds/all.rss.xml" rel="alternate">RSS feed</a></li>
             </ul>
@@ -225,9 +120,9 @@ by <a class="url fn" href="./author/nonodevil.html">nonoDevil</a>
                 Categories
                 </li>
                 
-                <li><a href="./category/c.html">C</a></li>
-                <li><a href="./category/life.html">Life</a></li>
-                <li><a href="./category/python.html">Python</a></li>
+                <li><a href="../category/c.html">C</a></li>
+                <li><a href="../category/life.html">Life</a></li>
+                <li><a href="../category/python.html">Python</a></li>
                    
             </ul>
             </div>
@@ -283,7 +178,7 @@ by <a class="url fn" href="./author/nonodevil.html">nonoDevil</a>
     </div>     </div> 
 <footer>
 <br />
-<p><a href=".">中二社</a> &copy; nonoDevil 2012</p>
+<p><a href="..">中二社</a> &copy; nonoDevil 2012</p>
 </footer>
 
 </div> <!-- /container -->

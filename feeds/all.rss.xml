@@ -1,5 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>中二社</title><link>http://nonodevil.com/</link><description></description><atom:link href="http://nonodevil.com/feeds/all.rss.xml" rel="self"></atom:link><lastBuildDate>Wed, 09 Oct 2013 00:43:00 +0800</lastBuildDate><item><title>openSUSE安装Disco</title><link>http://nonodevil.com/pages/2013/10/09/opensusean-zhuang-disco.html</link><description>&lt;h2&gt;简介&lt;/h2&gt;
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>中二社</title><link>http://nonodevil.com/</link><description></description><atom:link href="http://nonodevil.com/feeds/all.rss.xml" rel="self"></atom:link><lastBuildDate>Wed, 16 Oct 2013 00:00:00 +0800</lastBuildDate><item><title>解决 UnicodeEncodeError:'ascii' codec cant't encode characters in position 的问题</title><link>http://nonodevil.com/pages/2013/10/16/jie-jue-unicodeencodeerrorascii-codec-cantt-encode-characters-in-position-de-wen-ti.html</link><description>&lt;p&gt;写了一个程序，需要将解析xml后的内容重定向到文件中，但是xml中包含一些汉字，遇到了如下的错误:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="x"&gt;UnicodeEncodeError: &amp;#39;ascii&amp;#39; codec can&amp;#39;t encode characters in position 73-78: ordinal not in range(128)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;查了下是字符集的问题，在代码文件前加上如下代码即可:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;sys&lt;/span&gt;
+&lt;span class="nb"&gt;reload&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;sys&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;sys&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;setdefaultencoding&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;utf-8&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;参考资料:&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://blog.csdn.net/junshao90/article/details/7974030"&gt;http://blog.csdn.net/junshao90/article/details/7974030&lt;/a&gt;&lt;/p&gt;</description><dc:creator xmlns:dc="http://purl.org/dc/elements/1.1/">nonoDevil</dc:creator><pubDate>Wed, 16 Oct 2013 00:00:00 +0800</pubDate><guid>tag:nonodevil.com,2013-10-16:pages/2013/10/16/jie-jue-unicodeencodeerrorascii-codec-cantt-encode-characters-in-position-de-wen-ti.html</guid><category>python</category><category>UnicodeEncodeError</category></item><item><title>openSUSE安装Disco</title><link>http://nonodevil.com/pages/2013/10/09/opensusean-zhuang-disco.html</link><description>&lt;h2&gt;简介&lt;/h2&gt;
 &lt;hr /&gt;
 &lt;p&gt;disco是一个基于erlang开发，python为接口函数的map-reduce框架，可以在单机或者集群上部署,由Nokia公司研发。&lt;/p&gt;
 &lt;h2&gt;安装依赖&lt;/h2&gt;

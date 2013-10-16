@@ -57,8 +57,8 @@
 
     <div class='article'>
         <div class="content-title">
-            <a href="../pages/2013/10/09/opensusean-zhuang-disco.html"><h1>openSUSE安装Disco</h1></a>
-2013-10-09
+            <a href="../pages/2013/10/16/jie-jue-unicodeencodeerrorascii-codec-cantt-encode-characters-in-position-de-wen-ti.html"><h1>解决 UnicodeEncodeError:'ascii' codec cant't encode characters in position 的问题</h1></a>
+2013-10-16
 
 by <a class="url fn" href="../author/nonodevil.html">nonoDevil</a>
  
@@ -67,7 +67,39 @@ by <a class="url fn" href="../author/nonodevil.html">nonoDevil</a>
  
         </div>
         
-        <div><h2>简介</h2>
+        <div><p>写了一个程序，需要将解析xml后的内容重定向到文件中，但是xml中包含一些汉字，遇到了如下的错误:</p>
+<div class="highlight"><pre><span class="x">UnicodeEncodeError: &#39;ascii&#39; codec can&#39;t encode characters in position 73-78: ordinal not in range(128)</span>
+</pre></div>
+
+
+<p>查了下是字符集的问题，在代码文件前加上如下代码即可:</p>
+<div class="highlight"><pre><span class="kn">import</span> <span class="nn">sys</span>
+<span class="nb">reload</span><span class="p">(</span><span class="n">sys</span><span class="p">)</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">setdefaultencoding</span><span class="p">(</span><span class="s">&#39;utf-8&#39;</span><span class="p">)</span>
+</pre></div>
+
+
+<p>参考资料:</p>
+<p><a href="http://blog.csdn.net/junshao90/article/details/7974030">http://blog.csdn.net/junshao90/article/details/7974030</a></p></div>
+        <hr />
+    </div>
+		
+
+ 
+        
+
+ 
+
+    <div class='article'>
+        <a href="../pages/2013/10/09/opensusean-zhuang-disco.html"><h2>openSUSE安装Disco</h2></a>
+        <div class= "well small"> 2013-10-09
+
+by <a class="url fn" href="../author/nonodevil.html">nonoDevil</a>
+ 
+
+
+ </div>
+        <div class="summary"><h2>简介</h2>
 <hr />
 <p>disco是一个基于erlang开发，python为接口函数的map-reduce框架，可以在单机或者集群上部署,由Nokia公司研发。</p>
 <h2>安装依赖</h2>
@@ -89,190 +121,9 @@ sudo zypper install ssh-server
 </pre></div>
 
 
-<p>4.lighttpd 一个开源Web服务器软件</p>
-<div class="highlight"><pre>sudo zypper install lighttpd
-</pre></div>
-
-
-<p>5.varnish　高性能的开源HTTP加速器</p>
-<div class="highlight"><pre>sudo zypper install varnish
-</pre></div>
-
-
-<p>6.python-curses disco.core里面需要用到的包,可以到官网下载源码，以手动python setup.py install方式安装。</p>
-<div class="highlight"><pre>sudo zypper install python-curses
-</pre></div>
-
-
-<h2>安装Disco</h2>
-<hr />
-<h4>make install方式</h4>
-<p>1.下载源代码</p>
-<div class="highlight"><pre>git clone git://github.com/discoproject/disco.git
-<span class="nb">cd </span>disco/
-sudo make install
-</pre></div>
-
-
-<p>此处我直接使用make install,会把disco相关可执行文件导入到环境变量中，相关的python包也会导入到PYTHONPATH中，省去很多麻烦，当然也可以只make 然后用执行disco目录下的disco相关命令</p>
-<blockquote>
-<p>Tips: 如果是用集群的话，每个节点上的disco环境要拥有相同的路径，官方建议为每个结点建立一个disco用户，感觉和hadoop类似，使用集群的话，采用make方式，因为不是所有的结点都有root权限去make install</p>
-</blockquote>
-<p>2.执行disco</p>
-<div class="highlight"><pre>disco nodaemon
-</pre></div>
-
-
-<p>没有日志的执行</p>
-<div class="highlight"><pre>disco start
-</pre></div>
-
-
-<p>有日志的执行</p>
-<div class="highlight"><pre>ps aux|grep beam.*disco
-</pre></div>
-
-
-<p>用来查看是否执行成功</p>
-<p>3.配置ssh密钥</p>
-<p>配置密钥让Disco可以不需要密码的去访问集群上所有的结点。</p>
-<div class="highlight"><pre>ssh-keygen -N <span class="s1">&#39;&#39;</span> -f ~/.ssh/id_dsa
-</pre></div>
-
-
-<p>如果只有一个服务端的话，执行如下命令即可，</p>
-<div class="highlight"><pre>cat ~/.ssh/id_dsa.pub &gt;&gt; ~/.ssh/authorized_keys
-</pre></div>
-
-
-<p>否则的话，要给集群上的每个结点都拷贝一份密钥，如下命令</p>
-<div class="highlight"><pre>ssh-copy-id nodeX
-</pre></div>
-
-
-<p>nodeX是不同结点的主机名</p>
-<p>如果Disco运行在许多机器上，那么需要让他们的erlang.cookie保持一直，在master server执行:</p>
-<div class="highlight"><pre>scp ~/.erlang.cookie nodeX:
-</pre></div>
-
-
-<p>为每个nodeX都执行这个命令，nodeX是不同主机名</p>
-<p>WARNING:.erlang.cookie必须只对disco用户可读，即权限为400</p>
-<div class="highlight"><pre>chmod 0400 ~/.erlang.cookie
-</pre></div>
-
-
-<p>4.为Disco增加结点</p>
-<p>在浏览器输入http://&lt;DISCO_MASTER_HOST&gt;:&lt;DISCO_PORT$gt;DISCO_MASTER_HOST和DISCO_PORT在disco目录下的lib/disco/settings.py可以查看，一般默认是<a href="http://localhost:8989">http://localhost:8989</a>    </p>
-<p>如果没有什么问题的话，会出现类似下图的管理界面</p>
-<p><img alt="disc-main" src="http://disco.readthedocs.org/en/latest/_static/screenshots/disco-main.png" /></p>
-<p>可以在右侧点击 configure 然后通过 add row 和 remove 按钮来增加／删除节点，修改后记得保存即可</p>
-<p>WARNING:不建议将集群中的master结点作为slave结点</p>
-<p>5.测试系统</p>
-<p>在disco目录中的examples/util/目录中有一些测试程序，可以直接使用:</p>
-<div class="highlight"><pre>python disco/examples/util/count_words.py
-</pre></div>
-
-
-<p>disco/examples/util/count_words.py　这个程序是用来对服务器上的一个文本，进行单词出现数的统计，采用map-reduce方法，将计算过程map到不同结点计算，再将结果reduce到一起。</p>
-<div class="highlight"><pre><span class="kn">from</span> <span class="nn">disco.core</span> <span class="kn">import</span> <span class="n">Job</span><span class="p">,</span> <span class="n">result_iterator</span>
-
-<span class="k">def</span> <span class="nf">map</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
-    <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">():</span>
-        <span class="k">yield</span> <span class="n">word</span><span class="p">,</span> <span class="mi">1</span>
-
-<span class="k">def</span> <span class="nf">reduce</span><span class="p">(</span><span class="nb">iter</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
-    <span class="kn">from</span> <span class="nn">disco.util</span> <span class="kn">import</span> <span class="n">kvgroup</span>
-    <span class="k">for</span> <span class="n">word</span><span class="p">,</span> <span class="n">counts</span> <span class="ow">in</span> <span class="n">kvgroup</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="nb">iter</span><span class="p">)):</span>
-        <span class="k">yield</span> <span class="n">word</span><span class="p">,</span> <span class="nb">sum</span><span class="p">(</span><span class="n">counts</span><span class="p">)</span>
-
-<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;__main__&#39;</span><span class="p">:</span>
-    <span class="n">job</span> <span class="o">=</span>   <span class="n">Job</span><span class="p">()</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="nb">input</span><span class="o">=</span><span class="p">[</span><span class="s">&quot;http://discoproject.org/media/text/chekhov.txt&quot;</span><span class="p">],</span>
-                    <span class="nb">map</span><span class="o">=</span><span class="nb">map</span><span class="p">,</span>
-                    <span class="nb">reduce</span><span class="o">=</span><span class="nb">reduce</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">word</span><span class="p">,</span> <span class="n">count</span> <span class="ow">in</span> <span class="n">result_iterator</span><span class="p">(</span><span class="n">job</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="n">show</span><span class="o">=</span><span class="bp">True</span><span class="p">)):</span>
-        <span class="k">print</span><span class="p">(</span><span class="n">word</span><span class="p">,</span> <span class="n">count</span><span class="p">)</span>
-</pre></div>
-
-
-<p>终端执行结果:</p>
-<div class="highlight"><pre>Job@565:3cf85:2fd5b:
-Status: [map] 0 waiting, 0 running, 0 done, 0 failed
-2013/10/09 00:28:53 master     New job initialized!
-2013/10/09 00:28:53 master     Created job &quot;Job@565:3cf85:2fd5b&quot;
-2013/10/09 00:28:53 master     Stage map scheduled with 1 tasks
-2013/10/09 00:28:53 master     map:0 assigned to localhost
-Status: [map] 0 waiting, 1 running, 0 done, 0 failed
-2013/10/09 00:28:53 master     New job initialized!
-2013/10/09 00:28:53 master     Created job &quot;Job@565:3cf85:2fd5b&quot;
-2013/10/09 00:28:53 master     Stage map scheduled with 1 tasks
-2013/10/09 00:28:53 master     map:0 assigned to localhost
-2013/10/09 00:28:53 master     New job initialized!
-2013/10/09 00:28:53 master     Created job &quot;Job@565:3cf85:2fd5b&quot;
-2013/10/09 00:28:53 master     Stage map scheduled with 1 tasks
-2013/10/09 00:28:53 master     map:0 assigned to localhost
-Status: [reduce] 0 waiting, 0 running, 1 done, 0 failed
-(&#39;&quot;A&#39;, 2)
-(&#39;&quot;A.&#39;, 1)
-(&#39;&quot;And&#39;, 1)
-(&#39;&quot;Anya,&#39;, 1)
-(&#39;&quot;Before&#39;, 1)
-(&#39;&quot;Bobby,&#39;, 1)
-(&#39;&quot;Bravo,&#39;, 1)
-(&#39;&quot;But&#39;, 1)
-(&#39;&quot;But,&#39;, 1)
-(&#39;&quot;Can&#39;, 1)
-(&#39;&quot;Co-ee!&#39;, 1)
-(&#39;&quot;Co-ee,&#39;, 1)
-(&#39;&quot;Deeply&#39;, 1)
-(&#39;&quot;Defects,&quot;&#39;, 1)
-(&#39;&quot;Devil&#39;, 1)
-(&#39;&quot;Do&#39;, 1)
-(&#39;&quot;Don\&#39;t&#39;, 3)
-(&#39;&quot;Drink!&#39;, 1)
-(&#39;&quot;Encyclopaedic&#39;, 1)
-(&#39;&quot;Every&#39;, 1)
-(&#39;&quot;Everything\&#39;s&#39;, 1)
-(&#39;&quot;Evstigney,&#39;, 1)
-(&#39;&quot;For&#39;, 1)
-(&#39;&quot;Furl&#39;, 1)
-(&#39;&quot;General&quot;&#39;, 1)
-(&#39;&quot;General\&#39;s&quot;&#39;, 1)
-(&#39;&quot;Go;&#39;, 1)
-(&#39;&quot;Good&#39;, 3)
-(&#39;&quot;Grand&#39;, 1)
-(&#39;&quot;He&#39;, 3)
-(&#39;&quot;Hoist&#39;, 2)
-(&#39;&quot;How&#39;, 6)
-(&#39;&quot;Hurry&#39;, 1)
-(&#39;&quot;Husband&#39;, 1)
-(&#39;&quot;I&#39;, 7)
-(&#39;&quot;I\&#39;ll&#39;, 1)
-(&#39;&quot;I\&#39;m&#39;, 3)
-(&#39;&quot;I\&#39;ve&#39;, 2)
-(&#39;&quot;If&#39;, 1)
-(&#39;&quot;Information&#39;, 1)
-(&#39;&quot;Irina,&#39;, 1)
-(&#39;&quot;Is&#39;, 1)
-(&#39;&quot;It&#39;, 2)
-(&#39;&quot;Its&#39;, 1)
-(&#39;&quot;Jump!&quot;&#39;, 1)
-(&#39;&quot;Ladies,&#39;, 1)
-(&#39;&quot;Les&#39;, 1)
-(&#39;&quot;Let&#39;, 1)
-(&#39;&quot;Let\&#39;s&#39;, 1)
-...
-</pre></div>
-
-
-<h3>参考资料</h3>
-<hr />
-<p><a href="http://disco.readthedocs.org/en/latest/start/install.html">http://disco.readthedocs.org/en/latest/start/install.html</a></p>
-<p><a href="http://stackoverflow.com/questions/17706487/no-module-named-disco-core">http://stackoverflow.com/questions/17706487/no-module-named-disco-core</a></p>
-<p><a href="http://os.chinaunix.net/a2009/0703/994/000000994808.shtml">http://os.chinaunix.net/a2009/0703/994/000000994808.shtml</a></p></div>
-        <hr />
-    </div>
-		
+<p>4.lighttpd 一个开源Web服务器软件 ...</p> <a class="btn btn-info xsmall" href="../pages/2013/10/09/opensusean-zhuang-disco.html">read more</a></div>
+    </div>	
+				
 <div class="pagination">
 <ul>
     <li class="prev disabled"><a href="#">&larr; Previous</a></li>
@@ -311,7 +162,7 @@ Status: [reduce] 0 waiting, 0 running, 1 done, 0 failed
                 
                 <li><a href="../category/c.html">C</a></li>
                 <li><a href="../category/life.html">Life</a></li>
-                <li><a href="../category/python.html">python</a></li>
+                <li><a href="../category/python.html">Python</a></li>
                    
             </ul>
             </div>
@@ -323,28 +174,28 @@ Status: [reduce] 0 waiting, 0 running, 1 done, 0 failed
                 Links
                 </li>
             
-                <li><a href="http://chxccc.diandian.com">66ccff</a></li>
-                <li><a href="http;//rsroad.blog.chinaunix.net">刘丹阳</a></li>
-                <li><a href="http://blog.sina.com.cn/u/1715653890">李欣</a></li>
-                <li><a href="htpp://bsehw.blog.chinaunix.net">韩伟</a></li>
-                <li><a href="http://hookup.sinaapp.com/views/">何宇航</a></li>
-                <li><a href="http://gaojiasheng.him.blog.163.com/">高家升</a></li>
-                <li><a href="http://hi.baidu.com/0xc0000000">王韬</a></li>
-                <li><a href="http://blog.163.com/yangfan876@126/">杨帆</a></li>
-                <li><a href="http://blog.db89.org">杜斌</a></li>
-                <li><a href="http://lwplinux.blog.chinaunix.net">李文苹</a></li>
-                <li><a href="http://www.0xffffff.org">刘欢</a></li>
-                <li><a href="http://www.lindayi.tk">林达意</a></li>
-                <li><a href="http://liuyongkang.blog.chinaunix.net">刘永康</a></li>
-                <li><a href="http://tioo.sinaapp.com/">李力</a></li>
-                <li><a href="http://blog.csdn.net/sim_szm">沈昭萌</a></li>
-                <li><a href="http://through-my-eyes.diandian.com/">张瑞</a></li>
-                <li><a href="http://blog.sina.com.cn/eallychen">陈露纹</a></li>
-                <li><a href="http://blog.sina.com.cn/u/2657346022">雷雨</a></li>
-                <li><a href="http://edsionte.com/techblog/">武特</a></li>
-                <li><a href="http://www.linuxqiao.org/">赵桥</a></li>
-                <li><a href="http://wykitty.blog.chinaunix.net">吴云</a></li>
-                <li><a href="http://getpelican.com">Pelican</a></li>
+                <li><a href="http://chxccc.diandian.com" style="width:40px;">66ccff</a></li>
+                <li><a href="http;//rsroad.blog.chinaunix.net" style="width:40px;">刘丹阳</a></li>
+                <li><a href="http://blog.sina.com.cn/u/1715653890" style="width:40px;">李欣</a></li>
+                <li><a href="htpp://bsehw.blog.chinaunix.net" style="width:40px;">韩伟</a></li>
+                <li><a href="http://hookup.sinaapp.com/views/" style="width:40px;">何宇航</a></li>
+                <li><a href="http://gaojiasheng.him.blog.163.com/" style="width:40px;">高家升</a></li>
+                <li><a href="http://hi.baidu.com/0xc0000000" style="width:40px;">王韬</a></li>
+                <li><a href="http://blog.163.com/yangfan876@126/" style="width:40px;">杨帆</a></li>
+                <li><a href="http://blog.db89.org" style="width:40px;">杜斌</a></li>
+                <li><a href="http://lwplinux.blog.chinaunix.net" style="width:40px;">李文苹</a></li>
+                <li><a href="http://www.0xffffff.org" style="width:40px;">刘欢</a></li>
+                <li><a href="http://www.lindayi.tk" style="width:40px;">林达意</a></li>
+                <li><a href="http://liuyongkang.blog.chinaunix.net" style="width:40px;">刘永康</a></li>
+                <li><a href="http://tioo.sinaapp.com/" style="width:40px;">李力</a></li>
+                <li><a href="http://blog.csdn.net/sim_szm" style="width:40px;">沈昭萌</a></li>
+                <li><a href="http://through-my-eyes.diandian.com/" style="width:40px;">张瑞</a></li>
+                <li><a href="http://blog.sina.com.cn/eallychen" style="width:40px;">陈露纹</a></li>
+                <li><a href="http://blog.sina.com.cn/u/2657346022" style="width:40px;">雷雨</a></li>
+                <li><a href="http://edsionte.com/techblog/" style="width:40px;">武特</a></li>
+                <li><a href="http://www.linuxqiao.org/" style="width:40px;">赵桥</a></li>
+                <li><a href="http://wykitty.blog.chinaunix.net" style="width:40px;">吴云</a></li>
+                <li><a href="http://getpelican.com" style="width:40px;">Pelican</a></li>
             </ul>
             </div>
 
